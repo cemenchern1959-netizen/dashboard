@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --card-bg: #0d0507;
+            --accent: #800020;
+            --accent-hover: #a30029;
+            --border-color: #3d000f;
+            --text-main: #f5f5f5;
+            --text-muted: #9e8a8f;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Переключатель языка */
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .lang-switch:hover {
+            border-color: var(--accent);
+            background: #1a060b;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 680px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 28px;
+        }
+
+        /* Часы и дата */
+        .clock-block {
+            text-align: center;
+        }
+
+        .time {
+            font-size: clamp(3.2rem, 10vw, 5.2rem);
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 2px;
+            color: var(--text-main);
+            text-shadow: 0 0 25px rgba(128, 0, 32, 0.45);
+        }
+
+        .date {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: capitalize;
+        }
+
+        /* Поисковая строка */
+        .search-form {
+            width: 100%;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+        }
+
+        .search-btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 0 22px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .search-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Секция закрепов */
+        .pins-section {
+            width: 100%;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            text-align: center;
+        }
+
+        .pins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+        }
+
+        .pin-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px 16px;
+            text-decoration: none;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .pin-card:hover {
+            border-color: var(--accent);
+            background: #17050a;
+            transform: translateY(-2px);
+        }
+
+        .pin-card.accent-card {
+            border-color: var(--accent);
+            background: linear-gradient(145deg, #1a0309, #0d0507);
+        }
+
+        .pin-card.accent-card:hover {
+            background: linear-gradient(145deg, #2b050f, #14060a);
+        }
+
+        .pin-icon {
+            font-size: 1.8rem;
+        }
+
+        .pin-title {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .pin-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Модальное окно */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 100;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #0d0507;
+            border: 1px solid var(--accent);
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 10px 40px rgba(128, 0, 32, 0.35);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: var(--text-main);
+        }
+
+        .projects-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .project-btn {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 14px 16px;
+            background: var(--accent);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: background 0.2s ease;
+        }
+
+        .project-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .project-btn-title {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .project-btn-desc {
+            font-size: 0.82rem;
+            color: #f0d5dc;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="lang-switch" id="langToggle" onclick="toggleLanguage()">EN</button>
+
+    <div class="container">
+        <!-- Часы -->
+        <div class="clock-block">
+            <div class="time" id="clock">00:00:00</div>
+            <div class="date" id="date">...</div>
+        </div>
+
+        <!-- Поиск -->
+        <form class="search-form" action="https://www.google.com/search" method="GET" target="_blank">
+            <input type="text" name="q" class="search-input" id="searchInput" placeholder="Поиск в Google..." autocomplete="off">
+            <button type="submit" class="search-btn" id="searchBtn">Найти</button>
+        </form>
+
+        <!-- Закрепы -->
+        <div class="pins-section">
+            <div class="section-title" id="pinsHeading">Закреплённые</div>
+            <div class="pins-grid">
+                <a href="https://en.wikipedia.org" target="_blank" class="pin-card">
+                    <div class="pin-icon">🌐</div>
+                    <div class="pin-title">Wikipedia</div>
+                    <div class="pin-sub" id="wikiSub">Английская версия</div>
+                </a>
+
+                <a href="https://www.youtube.com" target="_blank" class="pin-card">
+                    <div class="pin-icon">▶️</div>
+                    <div class="pin-title">YouTube</div>
+                    <div class="pin-sub" id="ytSub">Видео и стримы</div>
+                </a>
+
+                <button type="button" class="pin-card accent-card" onclick="openModal()">
+                    <div class="pin-icon">📦</div>
+                    <div class="pin-title" id="otherProjectsTitle">Скачать другие проекты</div>
+                    <div class="pin-sub" id="otherProjectsSub">Репозитории GitHub</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно с проектами -->
+    <div class="modal-overlay" id="projectsModal" onclick="closeModalOnOverlay(event)">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Другие проекты</div>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="projects-list">
+                <a href="https://github.com/cemenchern1959-netizen/winiso_downloader" target="_blank" class="project-btn">
+                    <span class="project-btn-title">💿 winiso_downloader</span>
+                    <span class="project-btn-desc" id="winisoDesc">Страница для загрузки образов Windows ISO</span>
+                </a>
+                <a href="https://github.com/cemenchern1959-netizen/vertical_desk_surfacego" target="_blank" class="project-btn">
+                    <span class="project-btn-title">📱 vertical_desk_surfacego</span>
+                    <span class="project-btn-desc" id="deskDesc">Вертикальный дашборд для Surface Go (2:3)</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            ru: {
+                langBtn: 'EN',
+                dateLocale: 'ru-RU',
+                searchPlaceholder: 'Поиск в Google...',
+                searchBtn: 'Найти',
+                pinsHeading: 'Закреплённые',
+                wikiSub: 'Английская версия',
+                ytSub: 'Видео и стримы',
+                otherProjectsTitle: 'Скачать другие проекты',
+                otherProjectsSub: 'Репозитории GitHub',
+                modalTitle: 'Скачать другие проекты',
+                winisoDesc: 'Страница для загрузки образов Windows ISO',
+                deskDesc: 'Вертикальный дашборд для Surface Go (2:3)'
+            },
+            en: {
+                langBtn: 'RU',
+                dateLocale: 'en-US',
+                searchPlaceholder: 'Search Google...',
+                searchBtn: 'Search',
+                pinsHeading: 'Pinned',
+                wikiSub: 'English edition',
+                ytSub: 'Videos & streams',
+                otherProjectsTitle: 'Download other projects',
+                otherProjectsSub: 'GitHub repositories',
+                modalTitle: 'Download other projects',
+                winisoDesc: 'Windows ISO downloader page',
+                deskDesc: 'Vertical dashboard for Surface Go (2:3)'
+            }
+        };
+
+        let currentLang = localStorage.getItem('dashboardLang') || 'ru';
+
+        function applyLanguage() {
+            const t = translations[currentLang];
+            document.documentElement.lang = currentLang;
+            document.getElementById('langToggle').textContent = t.langBtn;
+            document.getElementById('searchInput').placeholder = t.searchPlaceholder;
+            document.getElementById('searchBtn').textContent = t.searchBtn;
+            document.getElementById('pinsHeading').textContent = t.pinsHeading;
+            document.getElementById('wikiSub').textContent = t.wikiSub;
+            document.getElementById('ytSub').textContent = t.ytSub;
+            document.getElementById('otherProjectsTitle').textContent = t.otherProjectsTitle;
+            document.getElementById('otherProjectsSub').textContent = t.otherProjectsSub;
+            document.getElementById('modalTitle').textContent = t.modalTitle;
+            document.getElementById('winisoDesc').textContent = t.winisoDesc;
+            document.getElementById('deskDesc').textContent = t.deskDesc;
+            updateClock();
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ru' ? 'en' : 'ru';
+            localStorage.setItem('dashboardLang', currentLang);
+            applyLanguage();
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const timeOptions = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            const dateOptions = {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            };
+
+            document.getElementById('clock').textContent = now.toLocaleTimeString(translations[currentLang].dateLocale, timeOptions);
+            document.getElementById('date').textContent = now.toLocaleDateString(translations[currentLang].dateLocale, dateOptions);
+        }
+
+        function openModal() {
+            document.getElementById('projectsModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('projectsModal').classList.remove('active');
+        }
+
+        function closeModalOnOverlay(event) {
+            if (event.target.id === 'projectsModal') {
+                closeModal();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        applyLanguage();
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>
